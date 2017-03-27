@@ -222,6 +222,8 @@ Store = Service.extend({
     this._modelFactoryCache = Object.create(null);
     this._relationshipsPayloads = new RelationshipPayloadsManager(this);
 
+    this._clientIdCache = Object.create(null);
+
     /*
       Ember Data uses several specialized micro-queues for organizing
       and coalescing similar async work.
@@ -2007,7 +2009,19 @@ Store = Service.extend({
   */
   _load(data) {
     heimdall.increment(_load);
-    let internalModel = this._internalModelForId(data.type, data.id);
+
+    let internalModel;
+    if (data.clientId) {
+      let trueId = coerceId(data.id);
+      internalModel = this._internalModelsFor(normalizeModelName(data.type)).get(trueId);
+      if (!internalModel) {
+        internalModel = this._clientIdCache[data.type] && this._clientIdCache[data.type][data.clientId];
+      }
+    }
+
+    if (!internalModel) {
+      internalModel = this._internalModelForId(data.type, data.id);
+    }
 
     internalModel.setupData(data);
 

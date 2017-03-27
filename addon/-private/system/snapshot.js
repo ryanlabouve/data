@@ -371,4 +371,15 @@ export default class Snapshot {
   serialize(options) {
     return this.record.store.serializerFor(this.modelName).serialize(this, options);
   }
+
+  clientId() {
+    if (!this._internalModel.clientId) {
+      if (!this.record.store._clientIdCache[this.modelName]) {
+        this.record.store._clientIdCache[this.modelName] = {};
+      }
+      this._internalModel.clientId = '1';
+      this.record.store._clientIdCache[this.modelName][this._internalModel.clientId] = this._internalModel;
+    }
+    return this._internalModel.clientId;
+  }
 }

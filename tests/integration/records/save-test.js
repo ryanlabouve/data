@@ -194,3 +194,48 @@ test("Will reject save on invalid", function(assert) {
     });
   });
 });
+
+test("WIP — testing stuff for nested save", function(assert) {
+  assert.expect(5);
+  var post;
+  run(function() {
+    post = env.store.createRecord('post', { title: 'toto' });
+  });
+
+  var deferred = Ember.RSVP.defer();
+  env.adapter.createRecord = function(store, type, snapshot) {
+    snapshot.clientId();
+    return deferred.promise;
+  };
+
+  let saved;
+  run(function() {
+    // This has to be in seperate run loop
+    saved = post.save();
+  });
+
+  run(function() {
+    // `save` returns a PromiseObject which allows to call get on it
+    assert.equal(saved.get('id'), undefined);
+
+    env.store.push({
+      data: {
+        id: '123',
+        type: 'post',
+        clientId: '1'
+      }
+    });
+
+    deferred.resolve({
+      id: '123',
+      clientId: '1'
+    });
+
+    saved.then(function(model) {
+      assert.ok(true, 'save operation was resolved');
+      assert.equal(saved.get('id'), 123);
+      assert.equal(model, post, "resolves with the model");
+      assert.equal(env.store.peekAll('post').get('length'), 1, "there is only one post in the store");
+    });
+  });
+});

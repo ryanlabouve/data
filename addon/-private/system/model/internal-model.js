@@ -128,6 +128,8 @@ export default class InternalModel {
     this.isError = false;
     this._isUpdatingRecordArrays = false; // used by the recordArrayManager
 
+    this.clientId = null;
+
     // During dematerialization we don't want to rematerialize the record.  The
     // reason this might happen is that dematerialization removes records from
     // record arrays,  and Ember arrays will always `objectAt(0)` and
