@@ -373,13 +373,6 @@ export default class Snapshot {
   }
 
   clientId() {
-    if (!this._internalModel.clientId) {
-      if (!this.record.store._clientIdCache[this.modelName]) {
-        this.record.store._clientIdCache[this.modelName] = {};
-      }
-      this._internalModel.clientId = '1';
-      this.record.store._clientIdCache[this.modelName][this._internalModel.clientId] = this._internalModel;
-    }
-    return this._internalModel.clientId;
+    return this._internalModel.getClientId();
   }
 }

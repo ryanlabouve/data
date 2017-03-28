@@ -612,6 +612,17 @@ export default class InternalModel {
     this.send('pushedData');
   }
 
+  getClientId() {
+    if (!this.clientId) {
+      if (!this.record.store._clientIdCache[this.modelName]) {
+        this.record.store._clientIdCache[this.modelName] = {};
+      }
+      this.clientId = '1';
+      this.record.store._clientIdCache[this.modelName][this.clientId] = this;
+    }
+    return this.clientId;
+  }
+
   flushChangedAttributes() {
     heimdall.increment(flushChangedAttributes);
     this._inFlightAttributes = this._attributes;
