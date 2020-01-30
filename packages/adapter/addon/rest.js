@@ -914,8 +914,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   handleResponse(status, headers, payload, requestData) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
-    } else if (this.isInvalid(status, headers, payload)) { // RLX: Payload is sitll a string
-      // Note x:
+    } else if (this.isInvalid(status, headers, payload)) {
+      // RL5: Payload is sitll a string
       // It looks like "payload.errors" would never be serialized properly here.
       // i.e. payload is always a string and invalid error will never return appropriate errors to model
       return new InvalidError(payload.errors);
@@ -1014,7 +1014,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           return determineBodyPromise(response, requestData);
         })
         .then(payload => {
-          // Payloads from errors are never serialized by here
+          // RL: 2 Payloads from errors are never serialized by here
           // always a string
           if (_response.ok && !(payload instanceof Error)) {
             return fetchSuccessHandler(adapter, payload, _response, requestData);
@@ -1271,7 +1271,7 @@ function ajaxError(adapter, payload, requestData, responseData) {
     error = handleAbort(requestData, responseData);
   } else {
     try {
-      // RLX: Payload is still a string.
+      // RL4: Payload is still a string.
       error = adapter.handleResponse(
         responseData.status,
         responseData.headers,
@@ -1317,6 +1317,7 @@ function fetchErrorHandler(adapter, payload, response, errorThrown, requestData)
   } else {
     responseData.errorThrown = errorThrown;
   }
+  // RL3
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
