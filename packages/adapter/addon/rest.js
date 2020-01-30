@@ -741,6 +741,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     const data = serializeIntoHash(store, type, snapshot);
 
+    // RL0:
+    // If the return below returns InvalidError, errors show up on model as expected
+    // https://github.com/emberjs/data/blob/master/packages/-ember-data/tests/integration/records/error-test.js#L203
+    // I don't think this will ever throw InvalidError with the right errors for the model
     return this.ajax(url, 'POST', { data });
   },
 
@@ -911,6 +915,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
+      // RL5: Payload is sitll a string
+      // It looks like "payload.errors" would never be serialized properly here.
+      // i.e. payload is always a string and invalid error will never return appropriate errors to model
       return new InvalidError(payload.errors);
     }
 
@@ -1007,6 +1014,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           return determineBodyPromise(response, requestData);
         })
         .then(payload => {
+          // RL: 2 Payloads from errors are never serialized by here
+          // always a string
           if (_response.ok && !(payload instanceof Error)) {
             return fetchSuccessHandler(adapter, payload, _response, requestData);
           } else {
@@ -1262,6 +1271,7 @@ function ajaxError(adapter, payload, requestData, responseData) {
     error = handleAbort(requestData, responseData);
   } else {
     try {
+      // RL4: Payload is still a string.
       error = adapter.handleResponse(
         responseData.status,
         responseData.headers,
@@ -1307,6 +1317,7 @@ function fetchErrorHandler(adapter, payload, response, errorThrown, requestData)
   } else {
     responseData.errorThrown = errorThrown;
   }
+  // RL3
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
