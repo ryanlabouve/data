@@ -106,4 +106,15 @@ module('Unit | determineBodyPromise', function() {
       assert.deepEqual(body, undefined, 'body response of null does not throw error HEAD calls');
     });
   });
+
+  test('determineBodyResponse returns errors when errors are present', function(assert) {
+    assert.expect(1);
+
+    const response = new Response(`{"errors":[{"detail":"can't be blank","source":{"pointer":"/data/attributes/email"},"title":"Invalid Attribute"},{"detail":"can't be blank","source":{"pointer":"/data/attributes/name"},"title":"Invalid Attribute"}]}"', { status: 422 }`);
+    const bodyPromise = determineBodyPromise(response, {});
+
+    return bodyPromise.then(body => {
+      assert.equal(body.errors, 2, 'Returns two errors with the payload');
+    });
+  });
 });

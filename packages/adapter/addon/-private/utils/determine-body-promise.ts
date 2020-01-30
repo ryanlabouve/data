@@ -18,6 +18,7 @@ function _determineContent(response: Response, requestData: JQueryAjaxSettings, 
   let ret: Payload = payload;
   let error;
 
+  // RL1: If this returns only when response.ok, would this mean errors payload is never serialized?
   if (!response.ok) {
     return payload;
   }
